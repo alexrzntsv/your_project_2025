@@ -101,7 +101,7 @@ def main():
 
     # Выбор параметров
     freq = st.sidebar.selectbox("Частота наблюдений:",
-                                ['H', 'D', 'M'], index=1)
+                                ['H', 'D', 'M'], index=2)
     season = st.sidebar.selectbox("Сезон:",
                                   ['зима', 'весна', 'лето', 'осень'])
     threshold = st.sidebar.slider("Порог корреляции:",
