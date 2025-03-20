@@ -1,3 +1,4 @@
+import time
 from itertools import combinations
 
 import pandas as pd
@@ -29,6 +30,7 @@ def generate_sample_data():
         city_weather_df = get_meteostat_data(latitude, longitude, 2023)
         city_weather_df["city"] = city
         all_data.append(city_weather_df)
+        time.sleep(1)
 
     if not all_data:
         st.error("Не удалось получить данные. Проверьте API ключ и подключение к интернету.")
