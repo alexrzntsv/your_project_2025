@@ -1,7 +1,9 @@
-pandas==2.2.3
-numpy==2.2.4
+geopy==2.4.1
 matplotlib==3.10.1
+meteostat==1.6.8
+numpy==2.2.4
 networkx==3.4.2
+pandas==2.2.3
 streamlit==1.43.2
 seaborn==0.13.2
 scipy==1.15.2

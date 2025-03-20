@@ -1,4 +1,3 @@
-from datetime import datetime
 from itertools import combinations
 
 import pandas as pd
@@ -9,20 +8,34 @@ import streamlit as st
 import seaborn as sns
 from scipy.stats import pearsonr, kendalltau
 
+from utils.geo import osm_geocode
+from utils.weather import get_meteostat_data
+
 
 def generate_sample_data():
-    cities = ['Москва', 'Санкт-Петербург', 'Нижний Новгород',
-              'Казань', 'Уфа', 'Новосибирск', 'Владивосток']
-    date_rng = pd.date_range(start='2023-01-01', end='2023-12-31', freq='H')
-    data = pd.DataFrame(date_rng, columns=['datetime'])
-    np.random.seed(42)
+    cities = (
+        'Москва',
+        'Санкт-Петербург',
+        'Нижний Новгород',
+        'Казань',
+        'Уфа',
+        'Новосибирск',
+        'Владивосток',
+    )
+    all_data = []
 
     for city in cities:
-        base = np.random.normal(10, 15, len(date_rng))
-        noise = np.random.normal(0, 5, len(date_rng))
-        data[city] = base + noise
+        latitude, longitude = osm_geocode(city)
+        city_weather_df = get_meteostat_data(latitude, longitude, 2023)
+        city_weather_df["city"] = city
+        all_data.append(city_weather_df)
 
-    return data.melt(id_vars='datetime', var_name='city', value_name='temperature')
+    if not all_data:
+        st.error("Не удалось получить данные. Проверьте API ключ и подключение к интернету.")
+        return pd.DataFrame()
+
+    df = pd.concat(all_data)
+    return df
 
 
 def preprocess_data(data, freq, season):
@@ -100,12 +113,9 @@ def main():
     data = generate_sample_data()
 
     # Выбор параметров
-    freq = st.sidebar.selectbox("Частота наблюдений:",
-                                ['H', 'D', 'M'], index=2)
-    season = st.sidebar.selectbox("Сезон:",
-                                  ['зима', 'весна', 'лето', 'осень'])
-    threshold = st.sidebar.slider("Порог корреляции:",
-                                  0.0, 1.0, 0.5, 0.05)
+    freq = st.sidebar.selectbox("Частота наблюдений:", ['H', 'D', 'M'], index=2)
+    season = st.sidebar.selectbox("Сезон:", ['зима', 'весна', 'лето', 'осень'])
+    threshold = st.sidebar.slider("Порог корреляции:", 0.0, 1.0, 0.5, 0.05)
 
     # Предобработка
     processed_data = preprocess_data(data, freq, season)
